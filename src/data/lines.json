@@ -1,0 +1,12 @@
+[
+  {
+    "id": "midosuji",
+    "name": "御堂筋線",
+    "color": "#e60012"
+  },
+  {
+    "id": "jr-kyoto",
+    "name": "JR京都線",
+    "color": "#005BAB"
+  }
+]

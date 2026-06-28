@@ -1,0 +1,29 @@
+[
+  {
+    "id": "higashi-umeda",
+    "apiId": "osakametro-rail:大阪市高速電気軌道-谷町線-東梅田",
+    "name": "東梅田",
+    "operator": "Osaka Metro",
+    "lat": 34.7024,
+    "lon": 135.4950,
+    "lines": ["tanimachi"]
+  },
+  {
+    "id": "umeda",
+    "apiId": "osakametro-rail:大阪市高速電気軌道-御堂筋線-梅田",
+    "name": "梅田",
+    "operator": "Osaka Metro",
+    "lat": 34.7055,
+    "lon": 135.4983,
+    "lines": ["midosuji"]
+  },
+  {
+    "id": "tennoji",
+    "apiId": "osakametro-rail:大阪市高速電気軌道-御堂筋線-天王寺",
+    "name": "天王寺",
+    "operator": "Osaka Metro",
+    "lat": 34.6467,
+    "lon": 135.5135,
+    "lines": ["midosuji", "tanimachi"]
+  }
+]
