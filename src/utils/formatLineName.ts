@@ -1,17 +1,28 @@
-export function formatLineName(feedName: string) {
-  if (!feedName) return "";
+/* 複数路線を抽出する */
+function extractLines(stationId: string): string[] {
+  if (!stationId) return [];
 
-  // 大阪メトロ系の簡易整形
-  if (feedName.includes("大阪メトロ")) {
-    if (feedName.includes("御堂筋")) return "御堂筋線";
-    if (feedName.includes("谷町")) return "谷町線";
-    if (feedName.includes("堺筋")) return "堺筋線";
+  const matches = [...stationId.matchAll(/-([^-\s]+線)-/g)];
+  return matches.map((m) => m[1]);
+}
+
+/* 路線名フォーマット */
+export function formatLineName(
+  stationId: string,
+  operator?: string
+): string {
+  // JRはそのまま
+  if (operator?.includes("JR")) {
+    return operator;
   }
 
-  // JRなどはそのまま短縮
-  if (feedName.includes("JR")) {
-    return feedName.replace("JR西日本", "JR").replace("JR東海", "JR");
+  // stationIdから路線を全部抽出
+  const lines = extractLines(stationId);
+
+  if (lines.length > 0) {
+    return `${lines.join(" / ")}（${operator ?? ""}）`;
   }
 
-  return feedName;
+  // フォールバック
+  return operator ?? "";
 }

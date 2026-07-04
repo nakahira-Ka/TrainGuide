@@ -1,6 +1,6 @@
 import type { Station } from "../../types/station";
 import { formatLineName } from "../../utils/formatLineName";
-
+import {groupStations} from"../../utils/groupStations"
 /* Props定義 */
 type Props = {
   items: Station[];
@@ -10,48 +10,52 @@ type Props = {
 };
 
 /* 駅サジェスト一覧 */
-export function SuggestList({
-  items,
-  loading,
-  error,
-  onSelect,
-}: Props) {
+export function SuggestList({ items, loading, error, onSelect }: Props) {
   if (loading) return <div>読み込み中...</div>;
   if (error) return <div style={{ color: "red" }}>{error}</div>;
   if (!items.length) return null;
-
+  
+  const grouped = items.reduce((acc, cur) => {
+    if (!acc[cur.name]) acc[cur.name] = [];
+    acc[cur.name].push(cur);
+    return acc;
+  }, {} as Record<string, Station[]>);
   return (
     <div
-      style={{
-        position: "absolute",
-        top: "100%",
-        left: 0,
-        right: 0,
-        border: "1px solid #ddd",
-        background: "#fff",
-        zIndex: 9999,
-        maxHeight: 300,
-        overflowY: "auto",
-      }}
+    style={{
+      position: "absolute",
+      top: "100%",
+      left: 0,
+      right: 0,
+      background: "#fff",
+      border: "1px solid #ddd",
+      zIndex: 9999,
+      maxHeight: 300,
+      overflowY: "auto",
+    }}
     >
-      {items.map((station) => (
-        <div
-          key={station.id}
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={() => onSelect(station)}
-          style={{
-            padding: "8px 10px",
-            cursor: "pointer",
-            borderBottom: "1px solid #eee",
-          }}
-        >
+      {Object.entries(grouped).map(([name, stations]) => (
+        <div key={name}>
           {/* 駅名 */}
-          <div>{station.name}</div>
-
-          {/* 路線情報 */}
-          <div style={{ fontSize: 12, color: "#666" }}>
-            {formatLineName(station.feedName ?? "")}
+          <div style={{ padding: 8, fontWeight: "bold" }}>
+            {name}
           </div>
+
+          {/* 路線一覧 */}
+          {stations.map((station) => (
+            <div
+            key={station.id}
+            onClick={() => onSelect(station)}
+            style={{
+              padding: "4px 12px",
+              cursor: "pointer",
+              fontSize: 12,
+              color: "#666",
+            }}
+            >
+              {formatLineName(station.id, station.operator)}
+            </div>
+          ))}
         </div>
       ))}
     </div>

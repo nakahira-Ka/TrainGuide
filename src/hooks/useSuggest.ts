@@ -24,10 +24,10 @@ export function useSuggest(keyword: string) {
         
         console.log("API data:", data);
         
-        const stations = data?.stations ?? [];
-        // const stations = (data as any)?.stations ?? [];
+        const stations = (data as any)?.stations ?? [];
 
         console.log("stations:", stations);
+        console.log("feedNames:", stations.map((s: any) => s.feedName));
 
         const mapped: Station[] = stations.slice(0, 5).map((s: any) => ({
           id: s.id,
@@ -41,7 +41,7 @@ export function useSuggest(keyword: string) {
         }));
 
         console.log("mapped:", mapped);
-
+        console.log("RAW stations:", stations);
         setSuggestions(mapped);
       } catch (e: any) {
         console.error(e);
