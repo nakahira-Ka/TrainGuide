@@ -1,20 +1,19 @@
 const BASE_URL = "https://api.transit.ls8h.com";
 
-async function request<T>(url: string): Promise<T> {
-  const response = await fetch(`${BASE_URL}${url}`);
-
-  if (!response.ok) {
-    throw new Error(`Transit API Error (${response.status})`);
-  }
-
-  return response.json();
-}
-
+/* 経路検索 */
 export async function getRoute(from: string, to: string) {
   const params = new URLSearchParams({
     from,
     to,
   });
 
-  return request<any>(`/api/v1/plan?${params.toString()}`);
+  const res = await fetch(
+    `${BASE_URL}/api/v1/plan?${params.toString()}`
+  );
+
+  if (!res.ok) {
+    throw new Error(`経路取得失敗: ${res.status}`);
+  }
+
+  return res.json();
 }

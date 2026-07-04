@@ -3,7 +3,7 @@
  * Do not make direct changes to the file.
  */
 
-export type paths = {
+export interface paths {
     "/api/health": {
         parameters: {
             query?: never;
@@ -47,6 +47,26 @@ export type paths = {
         };
         /** List operator branding marks and logo/data licenses */
         get: operations["listOperators"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/route-map": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Nationwide precomputed display route map
+         * @description Returns simplified display-only route geometry generated from route-shapes artifacts. This geometry is not used for journey search.
+         */
+        get: operations["getRouteMap"];
         put?: never;
         post?: never;
         delete?: never;
@@ -344,7 +364,10 @@ export interface components {
             date: string;
             timezone: string;
             departures: {
+                /** @description The line (e.g. 山陽本線); a route models the line, not the train class. */
                 routeName: string;
+                /** @description Train class/種別 (普通 / 快速 / 特急 …) when the line carries mixed classes. */
+                trainType?: string;
                 mode: string;
                 color?: string;
                 headsign?: string;
@@ -387,7 +410,10 @@ export interface components {
                 legs: ({
                     /** @enum {string} */
                     kind: "transit";
+                    /** @description The line this leg runs on (e.g. 山陽本線); a route models the line, not the train class. */
                     routeName: string;
+                    /** @description Train class/種別 (普通 / 快速 / 特急 …) when the line carries mixed classes. */
+                    trainType?: string;
                     mode: string;
                     color?: string;
                     headsign?: string;
@@ -588,7 +614,7 @@ export interface components {
                         routeName?: string;
                         color?: string;
                         /** @enum {string} */
-                        geometrySource: "osmWalk" | "estimatedWalk" | "gtfsShape" | "gsiRailCenterline" | "stopOrder" | "direct";
+                        geometrySource: "osmWalk" | "estimatedWalk" | "gtfsShape" | "gsiRailCenterline" | "openRailwayMap" | "stopOrder" | "direct";
                         /** @enum {string} */
                         fallbackReason?: "noWalkingGraph" | "networkUnreachable";
                         polyline: {
@@ -616,7 +642,10 @@ export interface components {
                     legs: ({
                         /** @enum {string} */
                         kind: "transit";
+                        /** @description The line this leg runs on (e.g. 山陽本線); a route models the line, not the train class. */
                         routeName: string;
+                        /** @description Train class/種別 (普通 / 快速 / 特急 …) when the line carries mixed classes. */
+                        trainType?: string;
                         mode: string;
                         color?: string;
                         headsign?: string;
@@ -733,6 +762,57 @@ export interface components {
                 message: string;
             }[];
         };
+        RouteMapResponse: {
+            /** @enum {number} */
+            version: 1;
+            generatedAt: string;
+            source: string;
+            attribution: string;
+            bbox?: {
+                minLat: number;
+                minLon: number;
+                maxLat: number;
+                maxLon: number;
+            };
+            feeds: {
+                feedId: string;
+                name: string;
+                lineCount: number;
+            }[];
+            lines: {
+                id: string;
+                feedId: string;
+                feedName: string;
+                sourceRouteId: string;
+                routeName: string;
+                /** @enum {string} */
+                mode: "tram" | "subway" | "rail" | "bus" | "ferry" | "cableTram" | "aerialLift" | "funicular" | "trolleybus" | "monorail" | "air";
+                /** @enum {string} */
+                provider: "gsiRailCenterline" | "openRailwayMap";
+                color?: string;
+                /** @enum {string} */
+                colorSource?: "routeColor" | "feedStable";
+                recorded?: boolean;
+                patternCount?: number;
+                coverage?: {
+                    /** @enum {string} */
+                    kind: "stopPairs";
+                    expected: number;
+                    covered: number;
+                    ratio: number;
+                };
+                bbox: {
+                    minLat: number;
+                    minLon: number;
+                    maxLat: number;
+                    maxLon: number;
+                };
+                polyline: {
+                    lat: number;
+                    lon: number;
+                }[];
+            }[];
+        };
     };
     responses: never;
     parameters: never;
@@ -798,6 +878,35 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OperatorBrandingResponse"];
+                };
+            };
+        };
+    };
+    getRouteMap: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteMapResponse"];
+                };
+            };
+            /** @description Resource not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
                 };
             };
         };

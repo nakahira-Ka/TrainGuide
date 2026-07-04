@@ -1,49 +1,69 @@
 import { formatTime } from "../../utils/timeFormat";
 
-type Leg = {
-  kind: "walk" | "transit";
-  routeName?: string;
-  headsign?: string;
-
-  from: { name: string };
-  to: { name: string };
-
-  departureSecs: number;
-  arrivalSecs: number;
-};
-
-function isTransferWalk(leg: Leg, next?: Leg) {
-  return leg.kind === "walk" && next?.kind === "transit";
-}
+/* 区間表示 */
 type Props = {
-  leg: Leg;
+  leg: any;
 };
 
-export function RouteSegment({ leg, next }: { leg: Leg; next?: Leg }) {
-  if (leg.kind === "walk") {
+export function RouteSegment({ leg }: Props) {
+  const isWalk = leg.kind === "walk";
+
+  /* 徒歩 */
+  if (isWalk) {
+    const min = Math.round(
+      (leg.arrivalSecs - leg.departureSecs) / 60
+    );
+
     return (
-      <div style={{ color: "#888", fontSize: 13 }}>
-        {isTransferWalk(leg, next) ? (
-          <>乗換: 徒歩 約 {Math.round((leg.arrivalSecs - leg.departureSecs) / 60)}分</>
-        ) : (
-          <>徒歩 約 {Math.round((leg.arrivalSecs - leg.departureSecs) / 60)}分</>
-        )}
+      <div
+        style={{
+          padding: "6px 0",
+          color: "#666",
+          fontSize: 13,
+        }}
+      >
+        徒歩 約 {min}分
       </div>
     );
   }
 
+  /* 電車 */
   return (
-    <div style={{ borderLeft: "3px solid #2196f3", paddingLeft: 10 }}>
-      <div>
-        {leg.from.name} → {leg.to.name}
+    <div
+      style={{
+        borderLeft: "3px solid #2196f3",
+        paddingLeft: 10,
+        margin: "10px 0",
+      }}
+    >
+      {/* 出発 */}
+      <div style={{ fontSize: 14 }}>
+        {formatTime(leg.departureSecs)}　{leg.from.name}
       </div>
 
-      <div style={{ fontWeight: "bold" }}>
+      {/* 路線 */}
+      <div
+        style={{
+          fontWeight: "bold",
+          margin: "4px 0",
+        }}
+      >
         {leg.routeName}
       </div>
 
-      <div style={{ fontSize: 12, color: "#666" }}>
-        {leg.headsign}
+      {/* 行先 */}
+      {leg.headsign && (
+        <div style={{ fontSize: 12, color: "#666" }}>
+          {leg.headsign}
+        </div>
+      )}
+
+      {/* 矢印 */}
+      <div style={{ margin: "4px 0" }}>↓</div>
+
+      {/* 到着 */}
+      <div style={{ fontSize: 14 }}>
+        {formatTime(leg.arrivalSecs)}　{leg.to.name}
       </div>
     </div>
   );

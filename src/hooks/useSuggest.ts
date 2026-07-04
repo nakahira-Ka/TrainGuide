@@ -1,41 +1,58 @@
 import { useEffect, useState } from "react";
-import { stationList } from "../data/stationIndex";
-
+import { searchStation } from "../api/search";
 import type { Station } from "../types/station";
 
-export type SuggestItem = {
-  id: string;
-  name: string;
-  operator: string;
-};
-
-export function useSuggest(query: string) {
-  const [suggestions, setSuggestions] = useState<SuggestItem[]>([]);
-  const [loading] = useState(false);
-  const [error] = useState<string | null>(null);
+/* 駅サジェスト */
+export function useSuggest(keyword: string) {
+  const [suggestions, setSuggestions] = useState<Station[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (query.trim().length < 1) {
-      setSuggestions([]);
-      return;
-    }
+    const run = async () => {
+      if (!keyword) {
+        setSuggestions([]);
+        return;
+      }
 
-    const q = query.toLowerCase();
+      setLoading(true);
+      setError(null);
 
-    const result = stationList
-      .filter((s: Station) => s.name.toLowerCase().includes(q))
-      .map((s: Station) => ({
-        id: s.id,
-        name: s.name,
-        operator: s.operator,
-      }));
+      try {
+        const data = await searchStation(keyword);
 
-    setSuggestions(result);
-  }, [query]);
+        
+        console.log("API data:", data);
+        
+        const stations = data?.stations ?? [];
+        // const stations = (data as any)?.stations ?? [];
 
-  return {
-    suggestions,
-    loading,
-    error,
-  };
+        console.log("stations:", stations);
+
+        const mapped: Station[] = stations.slice(0, 5).map((s: any) => ({
+          id: s.id,
+          apiId: s.id,
+          name: s.name,
+          operator: s.feedName ?? "",
+          feedName: s.feedName ?? "", 
+          lat: s.lat ?? 0,
+          lon: s.lon ?? 0,
+          lines: [],
+        }));
+
+        console.log("mapped:", mapped);
+
+        setSuggestions(mapped);
+      } catch (e: any) {
+        console.error(e);
+        setError(e.message ?? "error");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    run();
+  }, [keyword]);
+
+  return { suggestions, loading, error };
 }

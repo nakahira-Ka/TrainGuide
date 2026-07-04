@@ -1,42 +1,56 @@
-import type { SuggestItem } from "../../hooks/useSuggest";
+import type { Station } from "../../types/station";
+import { formatLineName } from "../../utils/formatLineName";
 
+/* Props定義 */
 type Props = {
-  items: SuggestItem[];
+  items: Station[];
   loading: boolean;
   error: string | null;
-  onSelect: (item: SuggestItem) => void;
+  onSelect: (station: Station) => void;
 };
 
+/* 駅サジェスト一覧 */
 export function SuggestList({
   items,
   loading,
   error,
   onSelect,
 }: Props) {
-  if (loading) return <div>検索中...</div>;
+  if (loading) return <div>読み込み中...</div>;
   if (error) return <div style={{ color: "red" }}>{error}</div>;
-  if (items.length === 0) return <div>候補なし</div>;
+  if (!items.length) return null;
 
   return (
     <div
       style={{
-        border: "1px solid #ccc",
+        position: "absolute",
+        top: "100%",
+        left: 0,
+        right: 0,
+        border: "1px solid #ddd",
         background: "#fff",
+        zIndex: 9999,
+        maxHeight: 300,
+        overflowY: "auto",
       }}
     >
-      {items.map((item) => (
+      {items.map((station) => (
         <div
-          key={item.id}
-          onClick={() => onSelect(item)}
+          key={station.id}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => onSelect(station)}
           style={{
-            padding: "10px",
+            padding: "8px 10px",
             cursor: "pointer",
             borderBottom: "1px solid #eee",
           }}
         >
-          <div>{item.name}</div>
-          <div style={{ fontSize: "12px", color: "#666" }}>
-            {item.operator}
+          {/* 駅名 */}
+          <div>{station.name}</div>
+
+          {/* 路線情報 */}
+          <div style={{ fontSize: 12, color: "#666" }}>
+            {formatLineName(station.feedName ?? "")}
           </div>
         </div>
       ))}

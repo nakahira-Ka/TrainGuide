@@ -1,28 +1,20 @@
-import stations from "../data/stations.json";
-import type { Station } from "../types/station";
+const BASE_URL = "https://api.transit.ls8h.com";
 
-const stationList = stations as Station[];
+/* 駅サジェスト取得 */
+export async function searchStation(keyword: string) {
+  if (!keyword) return { stations: [] };
 
-export type SuggestItem = {
-  id: string;
-  name: string;
-  operator: string;
-  lat: number;
-  lon: number;
-};
+  const res = await fetch(
+    `${BASE_URL}/api/v1/locations/suggest?q=${encodeURIComponent(keyword)}`
+  );
 
-export function searchStations(query: string): SuggestItem[] {
-  if (!query.trim()) return [];
+  if (!res.ok) {
+    throw new Error("駅検索に失敗しました");
+  }
 
-  const q = query.toLowerCase();
+  const data = await res.json();
 
-  return stationList
-    .filter((s) => s.name.includes(q))
-    .map((s) => ({
-      id: s.id,
-      name: s.name,
-      operator: s.operator,
-      lat: s.lat,
-      lon: s.lon,
-    }));
+  console.log("API raw response:", data);
+
+  return data; // ← ここ超重要
 }
